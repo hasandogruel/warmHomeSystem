@@ -1,40 +1,57 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Firebase Bağlantı Testi</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Warm Water Tank System</title>
 </head>
 <body>
-  <h1>Firebase Bağlantı Testi</h1>
-  
-  <script src="https://www.gstatic.com/firebasejs/9.21.0/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.21.0/firebase-database.js"></script>
+    <h1>Warm Water Tank System</h1>
+    <div>
+        <p><strong>Connection Status:</strong> <span id="connectionStatus">Connecting to Firebase...</span></p>
+        <p><strong>State:</strong> <span id="state">Loading...</span></p>
+        <p><strong>Water Tank Temperature:</strong> <span id="waterTankTemp">Loading...</span> °C</p>
+        <p><strong>Weather Temperature:</strong> <span id="weatherTemp">Loading...</span> °C</p>
+    </div>
 
-  <script>
-    // Firebase yapılandırma ayarlarını burada tanımlayın
-    const firebaseConfig = {
-      apiKey: "AIzaSyD-NVvz1PoXeeAknrD8_vpUuSGenYTaTLk",
-      authDomain: "warmwatertank-fcaff.firebaseapp.com",
-      databaseURL: "https://warmwatertank-fcaff-default-rtdb.europe-west1.firebasedatabase.app",
-      projectId: "warmwatertank-fcaff",
-      storageBucket: "warmwatertank-fcaff.appspot.com",
-      messagingSenderId: "200174441651",
-      appId: "1:200174441651:web:yourappid"
-    };
+    <!-- Firebase SDK'ları -->
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-database.js"></script>
 
-    // Firebase'i başlat
-    const app = firebase.initializeApp(firebaseConfig);
-    const database = firebase.database();
+    <!-- Firebase yapılandırması ve veri çekme kodu -->
+    <script>
+        // Firebase yapılandırma ayarları
+        const firebaseConfig = {
+            apiKey: "AIzaSyD-NVvz1PoXeeAknrD8_vpUuSGenYTaTLk",
+            authDomain: "warmwatertank-fcaff.firebaseapp.com",
+            databaseURL: "https://warmwatertank-fcaff-default-rtdb.europe-west1.firebasedatabase.app",
+            projectId: "warmwatertank-fcaff",
+            storageBucket: "warmwatertank-fcaff.appspot.com",
+            messagingSenderId: "200174441651",
+            appId: "1:200174441651:web:ae92dd679f790d53c8ccc6"
+        };
 
-    // Bağlantıyı doğrulamak için bir deneme okuması yapın
-    database.ref("/").once('value')
-      .then((snapshot) => {
-        console.log("Firebase bağlantısı başarılı:", snapshot.exists());
-      })
-      .catch((error) => {
-        console.error("Firebase bağlantısı başarısız:", error);
-      });
-  </script>
+        // Firebase'i başlat
+        const app = firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+
+        // Veri çekme fonksiyonu
+        function getData() {
+            const dataRef = database.ref('Datas'); // Veritabanındaki 'Datas' referansını al
+
+            dataRef.on('value', (snapshot) => {
+                const data = snapshot.val();
+                document.getElementById('state').textContent = data.state ? "On" : "Off";
+                document.getElementById('waterTankTemp').textContent = data.waterTankTemp;
+                document.getElementById('weatherTemp').textContent = data.weatherTemp;
+            });
+
+            // Bağlantı durumu güncellemesi
+            document.getElementById('connectionStatus').textContent = "Connected to Firebase!";
+        }
+
+        // Sayfa yüklendiğinde verileri çek
+        window.onload = getData;
+    </script>
 </body>
 </html>

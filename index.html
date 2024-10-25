@@ -12,6 +12,8 @@
         <p><strong>State:</strong> <span id="state">Loading...</span></p>
         <p><strong>Water Tank Temperature:</strong> <span id="waterTankTemp">Loading...</span> °C</p>
         <p><strong>Weather Temperature:</strong> <span id="weatherTemp">Loading...</span> °C</p>
+        <button id="startButton">Başlat</button> <!-- Başlat butonu eklendi -->
+        <button id="stopButton">Durdur</button> <!-- Başlat butonu eklendi -->
     </div>
 
     <h2>Ayarla</h2>
@@ -21,11 +23,35 @@
     </div>
     <button id="setTempButton">Sıcaklığı Ayarla</button>
 
+    
+
+    <h2>Otomatik Başlat/Durdur</h2>
+    <div>
+        <h3>Otomatik Başlat</h3>
+        <label for="startHour">Saat:</label>
+        <input type="number" id="startHour" min="0" max="23" placeholder="Saat (0-23)">
+        <label for="startMinute">Dakika:</label>
+        <input type="number" id="startMinute" min="0" max="59" placeholder="Dakika (0-59)">
+        <button id="startAutomatic">Otomatik Başlat</button>
+        
+    </div>
+
+    <div>
+        <h3>Otomatik Durdur</h3>
+        <label for="stopHour">Saat:</label>
+        <input type="number" id="stopHour" min="0" max="23" placeholder="Saat (0-23)">
+        <label for="stopMinute">Dakika:</label>
+        <input type="number" id="stopMinute" min="0" max="59" placeholder="Dakika (0-59)">
+        <button id="stopAtuomatic">Otomatik Durdur</button>
+    </div>
+    <h3></h3>
+    <button id="Cancel">Otomatik Ayarlar İptal</button>
+
     <!-- Firebase SDK'ları -->
     <script type="module">
         // Firebase yapılandırma ayarları
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-app.js";
-        import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-database.js";
+        import { getDatabase, ref, onValue, update } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-database.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyD-NVvz1PoXeeAknrD8_vpUuSGenYTaTLk",
@@ -57,33 +83,150 @@
         }
 
         // Sıcaklık ayarını Firebase'e gönder
-        const setTempButton = document.getElementById('setTempButton');
-        const tempInput = document.getElementById('tempInput');
+        document.addEventListener('DOMContentLoaded', function() {
+            const setTempButton = document.getElementById('setTempButton');
+            const tempInput = document.getElementById('tempInput');
 
-        setTempButton.addEventListener('click', () => {
-            const desiredTemperature = parseInt(tempInput.value);
+            setTempButton.addEventListener('click', () => {
+                const desiredTemperature = parseInt(tempInput.value);
 
-            // Sıcaklık değerini kontrol et
-            if (desiredTemperature >= 25 && desiredTemperature <= 60) {
-                const ordersRef = database.ref('Orders');
+                // Sıcaklık değerini kontrol et
+                if (desiredTemperature >= 25 && desiredTemperature <= 60) {
+                    const ordersRef = ref(database, 'Orders');
+
+                    // Verileri güncelle
+                    update(ordersRef, {
+                        new: true,
+                        orderAim: desiredTemperature
+                    })
+                    .then(() => {
+                        alert(`Sıcaklık ayarlandı: ${desiredTemperature} °C`);
+                    })
+                    .catch((error) => {
+                        console.error("Veri güncellenirken hata oluştu:", error);
+                    });
+                } else {
+                    alert("Lütfen 25 ile 60 arasında bir değer girin.");
+                }
+            });
+
+            // Başlat butonuna tıklama olayını dinle
+            const startButton = document.getElementById('startButton');
+            startButton.addEventListener('click', () => {
+                const ordersRef = ref(database, 'Orders');
 
                 // Verileri güncelle
-                ordersRef.update({
+                update(ordersRef, {
                     new: true,
-                    orderAim: desiredTemperature
+                    start: true
                 })
                 .then(() => {
-                    alert(`Sıcaklık ayarlandı: ${desiredTemperature} °C`);
+                    alert("Başlama Sinyali Gönderildi.");
+                })
+                .catch((error) => {
+                    console.error("Veri güncellenirken hata oluştu:", error);
+                });
+            });
+
+            // Durdur butonuna tıklama olayını dinle
+            const stopButton = document.getElementById('stopButton');
+            stopButton.addEventListener('click', () => {
+                const ordersRef = ref(database, 'Orders');
+
+                // Verileri güncelle
+                update(ordersRef, {
+                    new: true,
+                    start: false
+                })
+                .then(() => {
+                    alert("Durma Sinyali Gönderildi.");
+                })
+                .catch((error) => {
+                    console.error("Veri güncellenirken hata oluştu:", error);
+                });
+            });
+
+            //stopAtuomatic
+            const startAutomaticButton = document.getElementById('startAutomatic');
+            startAutomaticButton.addEventListener('click', () => {
+                const startHour = parseInt(document.getElementById('startHour').value);
+                const startMinute = parseInt(document.getElementById('startMinute').value);
+
+                const ordersRef = ref(database, 'Orders');
+
+                if (startHour >= 0 && startHour <= 23 && startMinute >= 0 && startMinute <= 59) {
+        const ordersRef = ref(database, 'Orders');
+
+        // Verileri güncelle
+                update(ordersRef, {
+                    new: true,
+                    startHour: startHour,
+                    startMinute: startMinute,
+                    startAutomatic: true
+                })
+                .then(() => {
+                    alert(`Otomatik başlatma ayarlandı: ${startHour}:${startMinute}`);
                 })
                 .catch((error) => {
                     console.error("Veri güncellenirken hata oluştu:", error);
                 });
             } else {
-                alert("Lütfen 25 ile 60 arasında bir değer girin.");
+                alert("Lütfen saat 0-23 ve dakika 0-59 arasında bir değer girin.");
             }
+            });
+
+            //stopAutomatic
+            const stopAutomaticButton = document.getElementById('stopAtuomatic');
+        stopAutomaticButton.addEventListener('click', () => {
+            const stopHour = parseInt(document.getElementById('stopHour').value);
+            const stopMinute = parseInt(document.getElementById('stopMinute').value);
+
+            // Saat ve dakika kontrolü
+            if (stopHour >= 0 && stopHour <= 23 && stopMinute >= 0 && stopMinute <= 59) {
+                const ordersRef = ref(database, 'Orders');
+
+                // Verileri güncelle
+                update(ordersRef, {
+                    new: true,
+                    stopHour: stopHour,
+                    stopMinute: stopMinute,
+                    stopAutomatic: true
+                })
+                .then(() => {
+                    alert(`Otomatik durdurma ayarlandı: ${stopHour}:${stopMinute}`);
+                })
+                .catch((error) => {
+                    console.error("Veri güncellenirken hata oluştu:", error);
+                });
+            } else {
+                alert("Lütfen saat 0-23 ve dakika 0-59 arasında bir değer girin.");
+                }
+            });
+
+
+            const cancelButton = document.getElementById('Cancel');
+            cancelButton.addEventListener('click', () => {
+                const ordersRef = ref(database, 'Orders');
+
+                // Verileri güncelle
+                update(ordersRef, {
+                    new: true,
+                    stopAutomatic: false,
+                    startAutomatic: false
+                })
+                .then(() => {
+                    alert("Otomatik ayarlar iptal edildi.");
+                })
+                .catch((error) => {
+                    console.error("Veri güncellenirken hata oluştu:", error);
+                });
+            });
+
+
+
+            
+
         });
-
-
 
         // Sayfa yüklendiğinde verileri çek
         window.onload = getData;

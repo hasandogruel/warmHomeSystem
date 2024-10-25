@@ -14,6 +14,13 @@
         <p><strong>Weather Temperature:</strong> <span id="weatherTemp">Loading...</span> °C</p>
     </div>
 
+    <h2>Ayarla</h2>
+    <div>
+        <label for="tempInput">Sıcaklık Ayarla (25-60 °C): </label>
+        <input type="number" id="tempInput" min="25" max="60" value="25">
+    </div>
+    <button id="setTempButton">Sıcaklığı Ayarla</button>
+
     <!-- Firebase SDK'ları -->
     <script type="module">
         // Firebase yapılandırma ayarları
@@ -48,6 +55,35 @@
             // Bağlantı durumu güncellemesi
             document.getElementById('connectionStatus').textContent = "Connected to Firebase!";
         }
+
+        // Sıcaklık ayarını Firebase'e gönder
+        const setTempButton = document.getElementById('setTempButton');
+        const tempInput = document.getElementById('tempInput');
+
+        setTempButton.addEventListener('click', () => {
+            const desiredTemperature = parseInt(tempInput.value);
+
+            // Sıcaklık değerini kontrol et
+            if (desiredTemperature >= 25 && desiredTemperature <= 60) {
+                const ordersRef = database.ref('Orders');
+
+                // Verileri güncelle
+                ordersRef.update({
+                    new: true,
+                    orderAim: desiredTemperature
+                })
+                .then(() => {
+                    alert(`Sıcaklık ayarlandı: ${desiredTemperature} °C`);
+                })
+                .catch((error) => {
+                    console.error("Veri güncellenirken hata oluştu:", error);
+                });
+            } else {
+                alert("Lütfen 25 ile 60 arasında bir değer girin.");
+            }
+        });
+
+
 
         // Sayfa yüklendiğinde verileri çek
         window.onload = getData;

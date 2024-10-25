@@ -3,18 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Warm Water Tank Data</title>
+    <title>Warm Water Tank</title>
     <script src="https://www.gstatic.com/firebasejs/9.1.3/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.1.3/firebase-database.js"></script>
 </head>
 <body>
     <h1>Warm Water Tank Data</h1>
-
-    <h2>Datas</h2>
-    <ul id="datas-display">Loading data...</ul>
-
-    <h2>Orders</h2>
-    <ul id="orders-display">Loading data...</ul>
+    <div id="data-display">Loading data...</div>
 
     <script>
         // Firebase yapılandırma
@@ -25,41 +20,23 @@
             projectId: "warmwatertank-fcaff",
             storageBucket: "warmwatertank-fcaff.appspot.com",
             messagingSenderId: "200174441651",
+            appId: "1:200174441651:web:yourAppIdHere"  // Optional, eksikse bu kısmı kaldırabilirsiniz
         };
 
         // Firebase başlatma
         const app = firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
 
-        // Verileri çekme ve sayfada gösterme
-        const datasDisplay = document.getElementById("datas-display");
-        const ordersDisplay = document.getElementById("orders-display");
+        // Veriyi al ve göster
+        const dataDisplay = document.getElementById("data-display");
 
+        // Firebase Realtime Database'den verileri çekme
         firebase.database().ref('/').on('value', (snapshot) => {
             const data = snapshot.val();
-
             if (data) {
-                // Datas bölümünü güncelleme
-                const datas = data.Datas;
-                datasDisplay.innerHTML = `
-                    <li>State: ${datas.state}</li>
-                    <li>Water Tank Temperature: ${datas.waterTankTemp} °C</li>
-                    <li>Weather Temperature: ${datas.weatherTemp} °C</li>
-                `;
-
-                // Orders bölümünü güncelleme
-                const orders = data.Orders;
-                ordersDisplay.innerHTML = `
-                    <li>New Order: ${orders.new}</li>
-                    <li>Order Aim: ${orders.orderAim}</li>
-                    <li>Start Automatic: ${orders.startAutomatic}</li>
-                    <li>Start Time: ${orders.startHour}:${orders.startMinute}</li>
-                    <li>Stop Automatic: ${orders.stopAutomatic}</li>
-                    <li>Stop Time: ${orders.stopHour}:${orders.stopMinute}</li>
-                `;
+                dataDisplay.innerText = JSON.stringify(data, null, 2);
             } else {
-                datasDisplay.innerHTML = "<li>No data available.</li>";
-                ordersDisplay.innerHTML = "<li>No data available.</li>";
+                dataDisplay.innerText = "No data available.";
             }
         });
     </script>

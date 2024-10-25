@@ -15,12 +15,11 @@
     </div>
 
     <!-- Firebase SDK'ları -->
-    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-database.js"></script>
-
-    <!-- Firebase yapılandırması ve veri çekme kodu -->
-    <script>
+    <script type="module">
         // Firebase yapılandırma ayarları
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-app.js";
+        import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-database.js";
+
         const firebaseConfig = {
             apiKey: "AIzaSyD-NVvz1PoXeeAknrD8_vpUuSGenYTaTLk",
             authDomain: "warmwatertank-fcaff.firebaseapp.com",
@@ -32,14 +31,14 @@
         };
 
         // Firebase'i başlat
-        const app = firebase.initializeApp(firebaseConfig);
-        const database = firebase.database();
+        const app = initializeApp(firebaseConfig);
+        const database = getDatabase(app);
 
         // Veri çekme fonksiyonu
         function getData() {
-            const dataRef = database.ref('Datas'); // Veritabanındaki 'Datas' referansını al
+            const dataRef = ref(database, 'Datas'); // Veritabanındaki 'Datas' referansını al
 
-            dataRef.on('value', (snapshot) => {
+            onValue(dataRef, (snapshot) => {
                 const data = snapshot.val();
                 document.getElementById('state').textContent = data.state ? "On" : "Off";
                 document.getElementById('waterTankTemp').textContent = data.waterTankTemp;

@@ -1,44 +1,40 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Warm Water Tank</title>
-    <script src="https://www.gstatic.com/firebasejs/9.1.3/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.1.3/firebase-database.js"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Firebase Bağlantı Testi</title>
 </head>
 <body>
-    <h1>Warm Water Tank Data</h1>
-    <div id="data-display">Loading data...</div>
+  <h1>Firebase Bağlantı Testi</h1>
+  
+  <script src="https://www.gstatic.com/firebasejs/9.21.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.21.0/firebase-database.js"></script>
 
-    <script>
-        // Firebase yapılandırma
-        const firebaseConfig = {
-            apiKey: "AIzaSyD-NVvz1PoXeeAknrD8_vpUuSGenYTaTLk",
-            authDomain: "warmwatertank-fcaff.firebaseapp.com",
-            databaseURL: "https://warmwatertank-fcaff-default-rtdb.europe-west1.firebasedatabase.app",
-            projectId: "warmwatertank-fcaff",
-            storageBucket: "warmwatertank-fcaff.appspot.com",
-            messagingSenderId: "200174441651",
-            appId: "1:200174441651:web:yourAppIdHere"  // Optional, eksikse bu kısmı kaldırabilirsiniz
-        };
+  <script>
+    // Firebase yapılandırma ayarlarını burada tanımlayın
+    const firebaseConfig = {
+      apiKey: "AIzaSyD-NVvz1PoXeeAknrD8_vpUuSGenYTaTLk",
+      authDomain: "warmwatertank-fcaff.firebaseapp.com",
+      databaseURL: "https://warmwatertank-fcaff-default-rtdb.europe-west1.firebasedatabase.app",
+      projectId: "warmwatertank-fcaff",
+      storageBucket: "warmwatertank-fcaff.appspot.com",
+      messagingSenderId: "200174441651",
+      appId: "1:200174441651:web:yourappid"
+    };
 
-        // Firebase başlatma
-        const app = firebase.initializeApp(firebaseConfig);
-        const database = firebase.database();
+    // Firebase'i başlat
+    const app = firebase.initializeApp(firebaseConfig);
+    const database = firebase.database();
 
-        // Veriyi al ve göster
-        const dataDisplay = document.getElementById("data-display");
-
-        // Firebase Realtime Database'den verileri çekme
-        firebase.database().ref('/').on('value', (snapshot) => {
-            const data = snapshot.val();
-            if (data) {
-                dataDisplay.innerText = JSON.stringify(data, null, 2);
-            } else {
-                dataDisplay.innerText = "No data available.";
-            }
-        });
-    </script>
+    // Bağlantıyı doğrulamak için bir deneme okuması yapın
+    database.ref("/").once('value')
+      .then((snapshot) => {
+        console.log("Firebase bağlantısı başarılı:", snapshot.exists());
+      })
+      .catch((error) => {
+        console.error("Firebase bağlantısı başarısız:", error);
+      });
+  </script>
 </body>
 </html>

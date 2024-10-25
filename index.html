@@ -211,8 +211,7 @@
                 // Verileri güncelle
                 update(ordersRef, {
                     new: true,
-                    stopAutomatic: false,
-                    startAutomatic: false
+                    cancel:true
                 })
                 .then(() => {
                     alert("Otomatik ayarlar iptal edildi.");

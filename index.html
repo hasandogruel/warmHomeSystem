@@ -8,7 +8,7 @@
 <body>
     <h1>Warm Water Tank System</h1>
     <div>
-        <p><strong>Connection Status:</strong> <span id="connectionStatus">Connecting to Firebase...</span></p>
+        <!-- Firebase SDK'ları<p><strong>Connection Status:</strong> <span id="connectionStatus">Connecting to Firebase...</span></p> -->
         <p><strong>ESP32 Connection Status:</strong> <span id="esp32Status">Checking...</span></p>
 
         <p><strong>Isıtma Durumu:</strong> <span id="state">Loading...</span></p>
@@ -104,8 +104,8 @@
                     // Zaman farkını hesapla
                     const timeDifference = currentEpochTime - lastSeen;
 
-                    // 10 saniyeden azsa "Bağlı", değilse "Bağlantı Kesildi"
-                    if (timeDifference <= 10) {
+                    // 30 saniyeden azsa "Bağlı", değilse "Bağlantı Kesildi"
+                    if (timeDifference <= 30) {
                         document.getElementById('esp32Status').textContent = "Bağlı";
                     } else {
                         document.getElementById('esp32Status').textContent = "Bağlantı Kesildi";

@@ -9,7 +9,7 @@
     <h1>Warm Water Tank System</h1>
     <div>
         <!-- Firebase SDK'ları<p><strong>Connection Status:</strong> <span id="connectionStatus">Connecting to Firebase...</span></p> -->
-        <p><strong>ESP32 Connection Status:</strong> <span id="esp32Status">Checking...</span></p>
+        <p><strong>Sistem Bağlantı Durumu:</strong> <span id="esp32Status">Checking...</span></p>
 
         <p><strong>Isıtma Durumu:</strong> <span id="state">Loading...</span></p>
         <p><strong>Tank İçi Sensör Durumu:</strong> <span id="sensor1State">Loading...</span></p>
@@ -27,7 +27,7 @@
     <h2>Ayarla</h2>
     <div>
         <label for="tempInput">Sıcaklık Ayarla (25-60 °C): </label>
-        <input type="number" id="tempInput" min="25" max="60" value="25">
+        <input type="number" id="tempInput" min="25" max="60" >
     </div>
     <button id="setTempButton">Sıcaklığı Ayarla</button>
 
@@ -79,7 +79,7 @@
 
             onValue(dataRef, (snapshot) => {
                 const data = snapshot.val();
-                document.getElementById('state').textContent = data.state ? "On" : "Off";
+                document.getElementById('state').textContent = data.state ? "Açık" : "Kapalı";
                 document.getElementById('waterTankTemp').textContent = data.waterTankTemp.toFixed(2); // 2 basamağa yuvarla
                 document.getElementById('weatherTemp').textContent = data.weatherTemp.toFixed(2); // 2 basamağa yuvarla
                 document.getElementById('sensor1State').textContent = data.sensor1State ? "Bağlı" : "Bağlantı YOK";

@@ -8,12 +8,12 @@
 <body>
     <h1>Warm Water Tank System</h1>
     <div>
-        <!-- <p><strong>Connection Status:</strong> <span id="connectionStatus">Connecting to Firebase...</span></p> --> 
-        <p><strong>Sistem Bağlantı Durumu:</strong> <span id="esp32Status">Checking...</span></p>
+        <p><strong>Connection Status:</strong> <span id="connectionStatus">Connecting to Firebase...</span></p>
+        <p><strong>ESP32 Connection Status:</strong> <span id="esp32Status">Checking...</span></p>
 
         <p><strong>Isıtma Durumu:</strong> <span id="state">Loading...</span></p>
         <p><strong>Tank İçi Sensör Durumu:</strong> <span id="sensor1State">Loading...</span></p>
-        <p><strong>Hava Sıcaklığı Sensörü Durumu:</strong> <span id="sensor2State">Loading...</span></p>
+        <p><strong>Hava Sıcaklığı Durumu:</strong> <span id="sensor2State">Loading...</span></p>
         <p><strong>Aylık Enerji Tüketimi: </strong> <span id="energyConsumptionMonthly">Loading...</span> kWh</p>
         <p><strong>Toplam Enerji Tüketimi:</strong> <span id="totalEnergyConsumption">Loading...</span> kWh</p>
         <p><strong>Ayarlanan Sıcaklık: </strong> <span id="orderAim">Loading...</span></p>
@@ -27,7 +27,7 @@
     <h2>Ayarla</h2>
     <div>
         <label for="tempInput">Sıcaklık Ayarla (25-60 °C): </label>
-        <input type="number" id="tempInput" min="25" max="60">
+        <input type="number" id="tempInput" min="25" max="60" value="25">
     </div>
     <button id="setTempButton">Sıcaklığı Ayarla</button>
 
@@ -105,7 +105,7 @@
                     const timeDifference = currentEpochTime - lastSeen;
 
                     // 10 saniyeden azsa "Bağlı", değilse "Bağlantı Kesildi"
-                    if (timeDifference <= 20) {
+                    if (timeDifference <= 10) {
                         document.getElementById('esp32Status').textContent = "Bağlı";
                     } else {
                         document.getElementById('esp32Status').textContent = "Bağlantı Kesildi";
@@ -189,7 +189,7 @@
                 });
             });
 
-            //stopAtuomatic
+            // Otomatik başlat ayarlarını yap
             const startAutomaticButton = document.getElementById('startAutomatic');
             startAutomaticButton.addEventListener('click', () => {
                 const startHour = parseInt(document.getElementById('startHour').value);
@@ -199,14 +199,70 @@
 
                 if (startHour >= 0 && startHour < 24 && startMinute >= 0 && startMinute < 60) {
                     update(ordersRef, {
+                        new: true,
                         startHour: startHour,
-                        startMinute: startMinute
+                        startMinute: startMinute,
+                        startAutomatic: true // Otomatik başlatma bilgisi
+
+                    })
+                    .then(() => {
+                        alert("Otomatik Başlat Ayarlandı.");
+                    })
+                    .catch((error) => {
+                        console.error("Veri güncellenirken hata oluştu:", error);
                     });
+                } else {
+                    alert("Lütfen geçerli bir saat ve dakika girin.");
                 }
+            });
+
+            // Otomatik durdur ayarlarını yap
+            const stopAutomaticButton = document.getElementById('stopAtuomatic');
+            stopAutomaticButton.addEventListener('click', () => {
+                const stopHour = parseInt(document.getElementById('stopHour').value);
+                const stopMinute = parseInt(document.getElementById('stopMinute').value);
+
+                const ordersRef = ref(database, 'Orders');
+
+                if (stopHour >= 0 && stopHour < 24 && stopMinute >= 0 && stopMinute < 60) {
+                    update(ordersRef, {
+                        new: true,
+                        stopHour: stopHour,
+                        stopMinute: stopMinute,
+                        stopAutomatic: true // Otomatik durdurma bilgisi
+                    })
+                    .then(() => {
+                        alert("Otomatik Durdurma Ayarlandı.");
+                    })
+                    .catch((error) => {
+                        console.error("Veri güncellenirken hata oluştu:", error);
+                    });
+                } else {
+                    alert("Lütfen geçerli bir saat ve dakika girin.");
+                }
+            });
+
+            // Otomatik ayarları iptal et
+            const cancelButton = document.getElementById('Cancel');
+            cancelButton.addEventListener('click', () => {
+                const ordersRef = ref(database, 'Orders');
+
+                update(ordersRef, {
+                    new: true,
+                    cancel: true,
+                    startAutomatic: false,
+                    stopAutomatic: false,
+                })
+                .then(() => {
+                    alert("Otomatik Ayarlar İptal Edildi.");
+                })
+                .catch((error) => {
+                    console.error("Veri güncellenirken hata oluştu:", error);
+                });
             });
         });
 
-        // Firebase'den veri çek
+        // Firebase'ten veri çek
         getData();
     </script>
 </body>

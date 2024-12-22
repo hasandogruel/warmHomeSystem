@@ -8,12 +8,20 @@
 <body>
     <h1>Warm Water Tank System</h1>
     <div>
-        <p><strong>Connection Status:</strong> <span id="connectionStatus">Connecting to Firebase...</span></p>
+        <!-- <p><strong>Connection Status:</strong> <span id="connectionStatus">Connecting to Firebase...</span></p> --> 
+        <p><strong>Sistem Bağlantı Durumu:</strong> <span id="esp32Status">Checking...</span></p>
+
         <p><strong>Isıtma Durumu:</strong> <span id="state">Loading...</span></p>
+        <p><strong>Tank İçi Sensör Durumu:</strong> <span id="sensor1State">Loading...</span></p>
+        <p><strong>Hava Sıcaklığı Durumu:</strong> <span id="sensor2State">Loading...</span></p>
+        <p><strong>Aylık Enerji Tüketimi: </strong> <span id="energyConsumptionMonthly">Loading...</span> kWh</p>
+        <p><strong>Toplam Enerji Tüketimi:</strong> <span id="totalEnergyConsumption">Loading...</span> kWh</p>
+        <p><strong>Ayarlanan Sıcaklık: </strong> <span id="orderAim">Loading...</span></p>
+
         <p><strong>Su Tankı Sıcaklığı:</strong> <span id="waterTankTemp">Loading...</span> °C</p>
         <p><strong>Hava Sıcaklığı:</strong> <span id="weatherTemp">Loading...</span> °C</p>
-        <button id="startButton">Başlat</button> <!-- Başlat butonu eklendi -->
-        <button id="stopButton">Durdur</button> <!-- Başlat butonu eklendi -->
+        <button id="startButton">Başlat</button>
+        <button id="stopButton">Durdur</button>
     </div>
 
     <h2>Ayarla</h2>
@@ -23,8 +31,6 @@
     </div>
     <button id="setTempButton">Sıcaklığı Ayarla</button>
 
-    
-
     <h2>Otomatik Başlat/Durdur</h2>
     <div>
         <h3>Otomatik Başlat</h3>
@@ -33,7 +39,6 @@
         <label for="startMinute">Dakika:</label>
         <input type="number" id="startMinute" min="0" max="59" placeholder="Dakika (0-59)">
         <button id="startAutomatic">Otomatik Başlat</button>
-        
     </div>
 
     <div>
@@ -70,12 +75,48 @@
         // Veri çekme fonksiyonu
         function getData() {
             const dataRef = ref(database, 'Datas'); // Veritabanındaki 'Datas' referansını al
+            const ordersRef = ref(database, 'Orders'); // 'Orders' referansını al
 
             onValue(dataRef, (snapshot) => {
                 const data = snapshot.val();
                 document.getElementById('state').textContent = data.state ? "On" : "Off";
-                document.getElementById('waterTankTemp').textContent = data.waterTankTemp;
-                document.getElementById('weatherTemp').textContent = data.weatherTemp;
+                document.getElementById('waterTankTemp').textContent = data.waterTankTemp.toFixed(2); // 2 basamağa yuvarla
+                document.getElementById('weatherTemp').textContent = data.weatherTemp.toFixed(2); // 2 basamağa yuvarla
+                document.getElementById('sensor1State').textContent = data.sensor1State ? "Bağlı" : "Bağlantı YOK";
+                document.getElementById('sensor2State').textContent = data.sensor2State ? "Bağlı" : "Bağlantı YOK";
+
+                const monthlyTime = data.monthlyTime || 0; // Saniye cinsinden süre
+                const power = 600; // Watt cinsinden güç
+                const energyConsumption = (monthlyTime * power) / (3600 * 1000); // kWh olarak hesapla
+                document.getElementById('energyConsumptionMonthly').textContent = energyConsumption.toFixed(2); // Küsuratı 2 basamak göster
+
+                // Toplam süre ve enerji tüketimini hesapla
+                const totalTime = data.totalTime || 0; // Saniye cinsinden toplam süre
+                const totalEnergyConsumption = (totalTime * power) / (3600 * 1000); // kWh olarak hesapla
+                document.getElementById('totalEnergyConsumption').textContent = totalEnergyConsumption.toFixed(2); // Küsuratı 2 basamak göster
+
+                // ESP32 bağlantı durumu
+                const lastSeenRef = ref(database, 'Datas/lastSeen');
+                onValue(lastSeenRef, (snapshot) => {
+                    const lastSeen = snapshot.val(); // Epoch time
+                    const currentEpochTime = Math.floor(Date.now() / 1000); // Mevcut epoch time (saniye olarak)
+
+                    // Zaman farkını hesapla
+                    const timeDifference = currentEpochTime - lastSeen;
+
+                    // 10 saniyeden azsa "Bağlı", değilse "Bağlantı Kesildi"
+                    if (timeDifference <= 10) {
+                        document.getElementById('esp32Status').textContent = "Bağlı";
+                    } else {
+                        document.getElementById('esp32Status').textContent = "Bağlantı Kesildi";
+                    }
+                });
+
+            });
+
+            onValue(ordersRef, (snapshot) => {
+                const orderData = snapshot.val();
+                document.getElementById('orderAim').textContent = orderData.orderAim || "No Data";
             });
 
             // Bağlantı durumu güncellemesi
@@ -156,85 +197,17 @@
 
                 const ordersRef = ref(database, 'Orders');
 
-                if (startHour >= 0 && startHour <= 23 && startMinute >= 0 && startMinute <= 59) {
-        const ordersRef = ref(database, 'Orders');
-
-        // Verileri güncelle
-                update(ordersRef, {
-                    new: true,
-                    startHour: startHour,
-                    startMinute: startMinute,
-                    startAutomatic: true,
-                    cancel: false
-                })
-                .then(() => {
-                    alert(`Otomatik başlatma ayarlandı: ${startHour}:${startMinute}`);
-                })
-                .catch((error) => {
-                    console.error("Veri güncellenirken hata oluştu:", error);
-                });
-            } else {
-                alert("Lütfen saat 0-23 ve dakika 0-59 arasında bir değer girin.");
-            }
-            });
-
-            //stopAutomatic
-            const stopAutomaticButton = document.getElementById('stopAtuomatic');
-        stopAutomaticButton.addEventListener('click', () => {
-            const stopHour = parseInt(document.getElementById('stopHour').value);
-            const stopMinute = parseInt(document.getElementById('stopMinute').value);
-
-            // Saat ve dakika kontrolü
-            if (stopHour >= 0 && stopHour <= 23 && stopMinute >= 0 && stopMinute <= 59) {
-                const ordersRef = ref(database, 'Orders');
-
-                // Verileri güncelle
-                update(ordersRef, {
-                    new: true,
-                    stopHour: stopHour,
-                    stopMinute: stopMinute,
-                    stopAutomatic: true,
-                    cancel: false
-                })
-                .then(() => {
-                    alert(`Otomatik durdurma ayarlandı: ${stopHour}:${stopMinute}`);
-                })
-                .catch((error) => {
-                    console.error("Veri güncellenirken hata oluştu:", error);
-                });
-            } else {
-                alert("Lütfen saat 0-23 ve dakika 0-59 arasında bir değer girin.");
+                if (startHour >= 0 && startHour < 24 && startMinute >= 0 && startMinute < 60) {
+                    update(ordersRef, {
+                        startHour: startHour,
+                        startMinute: startMinute
+                    });
                 }
             });
-
-
-            const cancelButton = document.getElementById('Cancel');
-            cancelButton.addEventListener('click', () => {
-                const ordersRef = ref(database, 'Orders');
-
-                // Verileri güncelle
-                update(ordersRef, {
-                    new: true,                    
-                    cancel:true,
-                    startAutomatic: false,
-                    stopAutomatic: false
-                })
-                .then(() => {
-                    alert("Otomatik ayarlar iptal edildi.");
-                })
-                .catch((error) => {
-                    console.error("Veri güncellenirken hata oluştu:", error);
-                });
-            });
-
-
-
-            
-
         });
 
-        // Sayfa yüklendiğinde verileri çek
-        window.onload = getData;
+        // Firebase'den veri çek
+        getData();
     </script>
 </body>
 </html>

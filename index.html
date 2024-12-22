@@ -7,6 +7,7 @@
 </head>
 <body>
     <h1>Warm Water Tank System</h1>
+    <h2>Sistem Bilgileri</h2>
     <div>
         <!-- Firebase SDK'ları<p><strong>Connection Status:</strong> <span id="connectionStatus">Connecting to Firebase...</span></p> -->
         <p><strong>Sistem Bağlantı Durumu:</strong> <span id="esp32Status">Checking...</span></p>
@@ -20,18 +21,18 @@
 
         <p><strong>Su Tankı Sıcaklığı:</strong> <span id="waterTankTemp">Loading...</span> °C</p>
         <p><strong>Hava Sıcaklığı:</strong> <span id="weatherTemp">Loading...</span> °C</p>
-        <button id="startButton">Başlat</button>
-        <button id="stopButton">Durdur</button>
+        <button id="startButton">Isıtmayı Başlat</button> <p></p>
+        <button id="stopButton">Isıtmayı Durdur</button>
     </div>
 
-    <h2>Ayarla</h2>
+    <h2>Sıcaklık Ayarla</h2>
     <div>
         <label for="tempInput">Sıcaklık Ayarla (25-60 °C): </label>
         <input type="number" id="tempInput" min="25" max="60" >
     </div>
+    <br/>
     <button id="setTempButton">Sıcaklığı Ayarla</button>
 
-    <h2>Otomatik Başlat/Durdur</h2>
     <div>
         <h3>Otomatik Başlat</h3>
         <label for="startHour">Saat:</label>

@@ -13,7 +13,7 @@
 
         <p><strong>Isıtma Durumu:</strong> <span id="state">Loading...</span></p>
         <p><strong>Tank İçi Sensör Durumu:</strong> <span id="sensor1State">Loading...</span></p>
-        <p><strong>Hava Sıcaklığı Durumu:</strong> <span id="sensor2State">Loading...</span></p>
+        <p><strong>Hava Sıcaklığı Sensörü Durumu:</strong> <span id="sensor2State">Loading...</span></p>
         <p><strong>Aylık Enerji Tüketimi: </strong> <span id="energyConsumptionMonthly">Loading...</span> kWh</p>
         <p><strong>Toplam Enerji Tüketimi:</strong> <span id="totalEnergyConsumption">Loading...</span> kWh</p>
         <p><strong>Ayarlanan Sıcaklık: </strong> <span id="orderAim">Loading...</span></p>
@@ -27,7 +27,7 @@
     <h2>Ayarla</h2>
     <div>
         <label for="tempInput">Sıcaklık Ayarla (25-60 °C): </label>
-        <input type="number" id="tempInput" min="25" max="60" value="25">
+        <input type="number" id="tempInput" min="25" max="60">
     </div>
     <button id="setTempButton">Sıcaklığı Ayarla</button>
 
@@ -105,7 +105,7 @@
                     const timeDifference = currentEpochTime - lastSeen;
 
                     // 10 saniyeden azsa "Bağlı", değilse "Bağlantı Kesildi"
-                    if (timeDifference <= 10) {
+                    if (timeDifference <= 20) {
                         document.getElementById('esp32Status').textContent = "Bağlı";
                     } else {
                         document.getElementById('esp32Status').textContent = "Bağlantı Kesildi";
